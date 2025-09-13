@@ -1,0 +1,86 @@
+# ==> General ================================================================
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.buildlog/
+.history
+.svn/
+
+# Secrets
+# IMPORTANT: Add any files containing your secret keys here!
+/local.properties
+/secrets.env
+*.pem
+*.key
+keys.txt
+# ==> IDE / Editor specific ==================================================
+# IntelliJ / Android Studio
+.idea/
+*.iml
+*.ipr
+*.iws
+modules.xml
+.idea/caches/
+.idea/libraries/
+.idea/runConfigurations/
+.idea/workspace.xml
+
+# VS Code
+.vscode/
+
+# ==> Flutter ================================================================
+# Files and directories created by Flutter
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+/ios/Flutter/App.framework
+/ios/Flutter/engine
+/ios/Flutter/flutter_assets
+/ios/Flutter/Generated.xcconfig
+/ios/Flutter/.last_build_id
+/ios/.symlinks/
+/ios/Pods/
+/ios/Runner/GeneratedPluginRegistrant.*
+/ios/Runner.xcworkspace/
+/ios/Podfile.lock
+/ios/build/
+
+# ==> Android ================================================================
+# Gradle files
+.gradle/
+/android/.gradle/
+/android/build/
+/android/app/build/
+/android/gradlew
+/android/gradlew.bat
+
+# Generated files
+/android/*-armeabi/
+/android/*-armeabi-v7a/
+/android/*-arm64-v8a/
+/android/*-mips/
+/android/*-x86/
+/android/*-x86_64/
+
+# Keystore files
+*.jks
+*.keystore
+
+# ==> iOS / macOS ============================================================
+# Xcode
+*.moved-aside
+DerivedData/
+*.hmap
+*.ipa
+*.app/
+Carthage/Build
+*.xcarchive
+xcuserdata/
