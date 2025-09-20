@@ -5,7 +5,7 @@ This project is in active development and is <em>not yet feature-complete</em>.<
 
 ---
 
-## 🚧 Current Status: Pre-Alpha
+## 🚧 Current Status:
 
 <p>The codebase is currently undergoing significant changes.  
 The application should be considered <strong>unstable</strong> and is <strong>not ready for production use</strong>.</p>

@@ -4,7 +4,6 @@ import 'package:terminus/features/auth/pin_setup_screen.dart';
 import 'package:terminus/features/auth/pin_unlock_screen.dart';
 import 'package:terminus/features/home/home_screen.dart';
 import 'package:terminus/features/location/map_screen.dart';
-import 'package:terminus/features/location/location_screen.dart';
 import 'package:terminus/features/placeholder_screen.dart';
 import 'package:terminus/features/settings/settings_screen.dart';
 
@@ -38,7 +37,6 @@ class TerminusApp extends StatelessWidget {
         '/unlock': (context) => const PinUnlockScreen(),
         '/home': (context) => const HomeScreen(),
         '/settings': (context) => const SettingsScreen(),
-        '/location': (context) => const LocationScreen(),
         '/fullscreen-map': (context) => const FullScreenMapScreen(),
         '/audio': (context) => const PlaceholderScreen(title: 'Audio Logs'),
         '/video': (context) => const PlaceholderScreen(title: 'Video Vault'),

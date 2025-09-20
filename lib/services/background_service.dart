@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'dart:ui';
+import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:location/location.dart';
+import 'package:record/record.dart';
 import 'package:terminus/services/file_service.dart';
 
 const String notificationChannelId = 'terminus_foreground_channel';
@@ -37,28 +39,79 @@ void onStart(ServiceInstance service) async {
   DartPluginRegistrant.ensureInitialized();
   
   final fileService = FileService();
-  final location = Location();
-  StreamSubscription<LocationData>? locationSubscription;
+  final audioRecorder = AudioRecorder();
   final flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+  
+  Map<String, String>? currentFilePaths;
 
-  if (service is AndroidServiceInstance) {
-    await service.setAsForegroundService();
-  }
-
-  service.on('stopService').listen((event) {
-    locationSubscription?.cancel();
+  service.on('stopService').listen((event) async {
+    if (await audioRecorder.isRecording()) {
+      await audioRecorder.stop();
+    }
     service.stopSelf();
   });
 
-  Timer.periodic(const Duration(minutes: 1), (timer) async {
-    final lastLocation = await location.getLocation();
-    final lat = lastLocation.latitude?.toStringAsFixed(4);
-    final lon = lastLocation.longitude?.toStringAsFixed(4);
+  const audioChunkDuration = Duration(minutes: 1);
 
+  Future<void> startNewRecordingChunk() async {
+    try {
+      currentFilePaths = await fileService.generateAudioFilePaths();
+      final audioPath = currentFilePaths!['audioPath'];
+      
+      // --- THIS IS THE UPGRADE: Maximum detail configuration ---
+      const config = RecordConfig(
+        encoder: AudioEncoder.flac,
+        sampleRate: 44100, // CD Quality sample rate
+        numChannels: 1,
+      );
+      // ----------------------------------------------------
+
+      if (audioPath != null) {
+        await audioRecorder.start(config, path: audioPath);
+        debugPrint('BACKGROUND SERVICE: Started new audio chunk at $audioPath');
+      }
+    } catch (e) {
+      debugPrint('BACKGROUND SERVICE: Error starting audio chunk: $e');
+    }
+  }
+  
+  Timer.periodic(audioChunkDuration, (timer) async {
+    if (await audioRecorder.isRecording()) {
+      final path = await audioRecorder.stop();
+      if (path != null) {
+        debugPrint('BACKGROUND SERVICE: Saved audio chunk to $path');
+
+        final metadataPath = currentFilePaths?['metadataPath'];
+        if (metadataPath != null) {
+          final file = File(path);
+          final fileBytes = await file.readAsBytes();
+          final checksum = sha256.convert(fileBytes).toString();
+
+          final metadata = {
+            'deviceId': 'TERMINUS_DEVICE_01',
+            'timestamp': DateTime.now().toIso8601String(),
+            'format': 'FLAC',
+            'sampleRate': 44100, // Updated to reflect new config
+            'channels': 1,
+            'checksum_sha256': checksum,
+          };
+          
+          final metaFile = File(metadataPath);
+          await metaFile.writeAsString(jsonEncode(metadata));
+          debugPrint('BACKGROUND SERVICE: Saved metadata with checksum: $checksum');
+        }
+      }
+    }
+    await startNewRecordingChunk();
+  });
+  
+  await startNewRecordingChunk();
+  
+  Timer.periodic(const Duration(minutes: 1), (timer) {
     flutterLocalNotificationsPlugin.show(
       notificationId,
       'Project Terminus: Service Active',
-      'Last location: $lat, $lon',
+      '24/7 high-integrity audio recording is active.',
       const NotificationDetails(
         android: AndroidNotificationDetails(
           notificationChannelId,
@@ -72,33 +125,6 @@ void onStart(ServiceInstance service) async {
     );
   });
 
-  await location.changeSettings(
-    accuracy: LocationAccuracy.high,
-    interval: 60000,
-    distanceFilter: 50,
-  );
-
-  locationSubscription = location.onLocationChanged.listen((locationData) async {
-    final now = DateTime.now();
-    final logEntry = {
-      'latitude': locationData.latitude,
-      'longitude': locationData.longitude,
-      'timestamp': now.toIso8601String(),
-    };
-
-    try {
-      final file = await fileService.getLogFileForDate(now);
-      String content = await file.readAsString();
-      
-      List<dynamic> logs = jsonDecode(content);
-      logs.add(logEntry);
-      await file.writeAsString(jsonEncode(logs));
-
-      debugPrint('BACKGROUND SERVICE: Logged location at ${logEntry['timestamp']}');
-    } catch (e) {
-      debugPrint('BACKGROUND SERVICE: Error writing to log file: $e');
-    }
-  });
-
-  debugPrint('BACKGROUND SERVICE: GPS tracking initialized.');
+  debugPrint('BACKGROUND SERVICE: High-integrity audio module initialized.');
 }
+

@@ -1,24 +1,20 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- PERMISSIONS FOR LOCATION & BACKGROUND SERVICES -->
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+    <!-- FINAL PERMISSIONS FOR AUDIO & BACKGROUND SERVICES -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
-    <!-- ADD THIS FINAL, MANDATORY PERMISSION -->
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION"/>
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE"/>
 
     <application
         android:label="terminus"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         
-        <meta-data android:name="com.google.android.geo.API_KEY"
-           android:value="AIzaSyCJZ-m7Y5oACxMaF5ptpreaZMJKSWisFVk"/>
-        
+        <!-- The service type is correctly set to "microphone" -->
         <service
             android:name="id.flutter.flutter_background_service.BackgroundService"
-            android:foregroundServiceType="location" />
+            android:foregroundServiceType="microphone" />
 
         <activity
             android:name=".MainActivity"
@@ -52,3 +48,4 @@
         </intent>
     </queries>
 </manifest>
+

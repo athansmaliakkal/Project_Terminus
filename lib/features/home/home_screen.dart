@@ -26,10 +26,17 @@ class _HomeScreenState extends State<HomeScreen> {
     _getStorageInfo();
   }
 
+  // --- THIS IS THE FINAL, ROBUST STARTUP SEQUENCE ---
   Future<void> _initializeAppServices() async {
+    // We add a short delay to ensure the UI is fully rendered before starting the service.
+    // This solves the "startForegroundService() not allowed" crash.
+    await Future.delayed(const Duration(seconds: 1));
+
+    // 1. Request all necessary permissions from the UI context.
     final hasPermissions = await _permissionService.requestCorePermissions();
     if (!hasPermissions || !mounted) return;
 
+    // 2. Create the Notification Channel.
     const AndroidNotificationChannel channel = AndroidNotificationChannel(
       notificationChannelId,
       'Terminus Service Notifications',
@@ -41,14 +48,17 @@ class _HomeScreenState extends State<HomeScreen> {
         .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
         ?.createNotificationChannel(channel);
 
+    // 3. Configure the background service.
     await BackgroundService.initializeService();
     
+    // 4. Check if the service is running and start it if it's not.
     final service = FlutterBackgroundService();
     var isRunning = await service.isRunning();
     if (!isRunning) {
       service.startService();
     }
   }
+  // ----------------------------------------------------
   
   Future<void> _getStorageInfo() async {
     StorageSpace storage = await getStorageSpace(lowOnSpaceThreshold: 0, fractionDigits: 1);
@@ -172,7 +182,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Device Storage',
+                                'DEVICE STORAGE',
                                 style: GoogleFonts.poppins(
                                   color: Colors.white,
                                   fontSize: 18,

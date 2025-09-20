@@ -121,6 +121,7 @@ class PinDisplay extends StatelessWidget {
               shape: BoxShape.circle,
               color: index < pinLength
                   ? Theme.of(context).colorScheme.primary
+                  // ignore: deprecated_member_use
                   : Colors.white.withOpacity(0.2),
             ),
           );
