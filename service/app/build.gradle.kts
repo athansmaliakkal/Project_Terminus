@@ -9,7 +9,8 @@ android {
 
     defaultConfig {
         applicationId = "com.terminus.service"
-        minSdk = 24
+        // Setting minSdk to 26 for broad compatibility while using modern APIs
+        minSdk = 26
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
@@ -42,7 +43,13 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
+
+    // Dependency for JSON conversion
+    implementation("com.google.code.gson:gson:2.13.2")
+
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 }
+
